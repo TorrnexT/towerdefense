@@ -1,0 +1,15 @@
+{
+  "name": "@emberwatch/shared",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts",
+    "./simulation": "./src/simulation.ts",
+    "./collision": "./src/collision.ts"
+  },
+  "dependencies": {
+    "@colyseus/schema": "5.0.27"
+  }
+}

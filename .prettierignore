@@ -1,0 +1,5 @@
+node_modules
+**/dist
+gameclient/public/assets
+verification/output
+package-lock.json

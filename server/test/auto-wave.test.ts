@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { Simulation } from '@emberwatch/shared/simulation';
+let id = 0;
+const send = (s: Simulation, enabled: unknown, player = 'p') =>
+  s.command(player, { id: String(++id), action: 'setAutoStart', enabled });
+test('manual mode survives completed waves and waits until explicitly started', () => {
+  const s = new Simulation();
+  s.addPlayer('p');
+  assert.ok(send(s, false).ok);
+  s.state.wave = 1;
+  s.state.phase = 'combat';
+  s.step();
+  assert.equal(s.state.phase, 'preparing');
+  assert.equal(s.state.countdown, -1);
+  for (let i = 0; i < 1000; i++) s.step();
+  assert.equal(s.state.wave, 1);
+  assert.ok(s.command('p', { id: 'start', action: 'startWave' }).ok);
+  assert.equal(s.state.wave, 2);
+});
+test('disable cancels a running countdown; re-enable gives a full pause, with idempotent settings', () => {
+  const s = new Simulation();
+  s.addPlayer('p');
+  s.state.wave = 2;
+  s.state.countdown = 2;
+  send(s, false);
+  assert.equal(s.state.countdown, -1);
+  send(s, true);
+  assert.equal(s.state.countdown, 15);
+  s.step();
+  const left = s.state.countdown;
+  send(s, true);
+  assert.equal(s.state.countdown, left);
+  for (let i = 0; i < 310; i++) s.step();
+  assert.equal(s.state.wave, 3);
+});
+test('first wave stays manual; host controls mode and invalid values cannot change it', () => {
+  const s = new Simulation();
+  s.state.mode = 'coop';
+  s.addPlayer('p');
+  s.addPlayer('guest');
+  assert.equal(send(s, false, 'guest').ok, false);
+  assert.equal(send(s, 'false').ok, false);
+  send(s, false);
+  send(s, true);
+  assert.equal(s.state.countdown, -1);
+  send(s, false);
+  s.state.phase = 'defeat';
+  s.command('p', { id: 'restart', action: 'restart' });
+  assert.equal(s.state.autoStart, false);
+});

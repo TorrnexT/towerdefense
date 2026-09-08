@@ -1,0 +1,25 @@
+{
+  "name": "@emberwatch/gameclient",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@emberwatch/shared": "*",
+    "@colyseus/sdk": "0.18.2",
+    "three": "^0.180.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "lucide-react": "^0.468.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1",
+    "@vitejs/plugin-react": "^4.7.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@types/three": "^0.180.0"
+  }
+}

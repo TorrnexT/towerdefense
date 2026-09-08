@@ -1,0 +1,35 @@
+{
+  "tool": "image_gen (built-in)",
+  "assets": [
+    {
+      "id": "world",
+      "prompt": "Use case: stylized-concept. Asset type: finished square campaign world map background for the browser fantasy game Emberwatch. Create a beautiful painted toy-like fantasy island map, near top-down with softly isometric hills, crisp chunky silhouettes, warm painterly detail and lush saturated colors. A coherent landmass in a deep teal sea, five regions following an S-shaped journey: lower left emerald woodland and a small keep, lower right turquoise river valley with two wooden bridges and waterfall, center golden crimson autumn forest with ancient ruins, upper left snowy alpine gorge with ice river and stone bridges, upper right dark volcanic mountains with glowing orange lava and basalt bridges. Regions blend naturally. Leave small open clearings for interactive mission markers. Entire island in frame, no UI, no labels, no letters, no numbers, no watermarks, no drawn mission nodes. Square 2048x2048 composition. This is a locally embedded game illustration, not a screenshot or mockup.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-6f0f3d71-4d33-412a-bac6-7ea8e45f2bab.png"
+    },
+    {
+      "id": "waldtal",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape chapter illustration for the fantasy browser tower defense game Emberwatch. Scene: emerald forest valley, winding pale road through rolling grassy hills, chunky pine trees, mossy rocks, a small blue-roofed stone fortress, warm morning sunlight. Beautiful richly painted toy-like fantasy landscape, elevated isometric vista, chunky readable silhouettes, stylized high-end game key art, tactile hand-painted detail, inviting strategic battlefield landscape. Coherent original fantasy art, no characters, no labels, no text, no numbers, no HUD, no border, no watermark. 1536x1024 landscape composition, striking focal environment, keep important features in central 70% so it can crop responsively.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-2d415499-d927-4a7e-b71e-e97cb3164222.png"
+    },
+    {
+      "id": "silberfurt",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape chapter illustration for the fantasy browser tower defense game Emberwatch. Scene: lush green river valley, vivid turquoise river, exactly two rustic wooden bridges on branching paths, white cascading waterfall, a small fortress in the distance, golden daylight. Beautiful richly painted toy-like fantasy landscape, elevated isometric vista, chunky readable silhouettes, stylized high-end game key art, tactile hand-painted detail, inviting strategic battlefield landscape. Coherent original fantasy art, no characters, no labels, no text, no numbers, no HUD, no border, no watermark. 1536x1024 landscape composition, striking focal environment, keep important features in central 70% so it can crop responsively.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-bb8c5f2b-d029-4cb6-9665-76d74f79b0a4.png"
+    },
+    {
+      "id": "bernsteinhain",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape chapter illustration for the fantasy browser tower defense game Emberwatch. Scene: golden crimson autumn forest, ancient pale stone ruins and pillars, two winding paths merging toward a small amber-roofed fortress, floating autumn leaves, amber sunlight. Beautiful richly painted toy-like fantasy landscape, elevated isometric vista, chunky readable silhouettes, stylized high-end game key art, tactile hand-painted detail, inviting strategic battlefield landscape. Coherent original fantasy art, no characters, no labels, no text, no numbers, no HUD, no border, no watermark. 1536x1024 landscape composition, striking focal environment, keep important features in central 70% so it can crop responsively.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-f1343d91-4ee8-495c-b573-8fd427da780a.png"
+    },
+    {
+      "id": "frostklamm",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape chapter illustration for the fantasy browser tower defense game Emberwatch. Scene: snowy alpine gorge, snow-laden firs and jagged rocks, icy turquoise water, stone bridges and branching snowy paths leading to a small winter fortress, crisp cool daylight. Beautiful richly painted toy-like fantasy landscape, elevated isometric vista, chunky readable silhouettes, stylized high-end game key art, tactile hand-painted detail, inviting strategic battlefield landscape. Coherent original fantasy art, no characters, no labels, no text, no numbers, no HUD, no border, no watermark. 1536x1024 landscape composition, striking focal environment, keep important features in central 70% so it can crop responsively.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-b93e48ca-abae-45d3-95b9-06fb93c40e8f.png"
+    },
+    {
+      "id": "glutspalten",
+      "prompt": "Use case: stylized-concept. Asset type: finished landscape chapter illustration for the fantasy browser tower defense game Emberwatch. Scene: dark volcanic basalt valley, glowing orange lava streams, three basalt bridges, charred trees, winding ash paths toward a dark red-roofed fortress, warm lava glow and smoky violet sky. Beautiful richly painted toy-like fantasy landscape, elevated isometric vista, chunky readable silhouettes, stylized high-end game key art, tactile hand-painted detail, inviting strategic battlefield landscape. Coherent original fantasy art, no characters, no labels, no text, no numbers, no HUD, no border, no watermark. 1536x1024 landscape composition, striking focal environment, keep important features in central 70% so it can crop responsively.",
+      "path": "/Users/benedictromp/.codex/generated_images/01a07ba4-a441-7e60-83e2-5eac0b3d07ac/exec-bddce2f1-cc12-41d8-9590-a99d0b6df2be.png"
+    }
+  ]
+}

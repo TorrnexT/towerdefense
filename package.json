@@ -1,0 +1,48 @@
+{
+  "name": "emberwatch",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "gameclient",
+    "server",
+    "shared"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n SERVER,GAME -c cyan,green \"npm run dev -w server\" \"npm run dev -w gameclient\"",
+    "build": "npm run typecheck && npm run build -w server && npm run build -w gameclient && node scripts/build-offline.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test server/test/*.test.ts",
+    "test:integration": "tsx --test server/test/integration/*.test.ts",
+    "verify:browser": "node verification/browser.mjs",
+    "start": "npm run start -w server",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify:production": "node verification/production.mjs",
+    "verify:coop": "node verification/coop.mjs",
+    "verify:menu": "node verification/menu.mjs",
+    "verify:maps": "node verification/maps.mjs",
+    "verify:campaign": "node verification/campaign.mjs",
+    "verify:storage": "node verification/storage.mjs",
+    "verify:balance": "tsx verification/balance.ts",
+    "verify:research": "node verification/research.mjs",
+    "verify:status": "node verification/status.mjs",
+    "verify:hover": "node verification/hover.mjs",
+    "verify:placement": "node verification/placement.mjs",
+    "verify:account": "node verification/account.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^22.18.0",
+    "concurrently": "^9.2.1",
+    "prettier": "^3.9.6",
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.3"
+  },
+  "overrides": {
+    "qs": "6.16.0"
+  }
+}
