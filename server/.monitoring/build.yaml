@@ -1,0 +1,35 @@
+name: Emberwatch Server
+on: workflow_dispatch
+jobs:
+  server:
+    name: Server bauen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.3.4"
+      - name: Workspace-Abhängigkeiten installieren
+        working-directory: ..
+        env:
+          NODE_ENV: development
+        run: pnpm install --frozen-lockfile
+      - name: Server bauen
+        run: pnpm run build
+      - name: Portables Server-Paket vorbereiten
+        run: |
+          temporary="$(mktemp -d)"
+          trap 'rm -rf -- "$temporary"' EXIT
+          pnpm --filter @emberwatch/server deploy --prod --config.node-linker=hoisted "$temporary/package"
+          mkdir -p .monitoring-artifact/server
+          cp -RL -- dist "$temporary/package/package.json" "$temporary/package/node_modules" .monitoring-artifact/server/
+      - name: Server-Artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: emberwatch-server
+          path: .monitoring-artifact/
+          include-hidden-files: true
+          if-no-files-found: error

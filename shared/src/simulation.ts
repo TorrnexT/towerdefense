@@ -20,7 +20,7 @@ import {
   type ImpactEvent,
   TOWERS,
   ENEMIES,
-  MAPS,
+  battleMap,
   isMapId,
   getRoute,
   damageAfterDefense,
@@ -122,7 +122,7 @@ export class Simulation {
   private spawnTimer = 0;
   private routeSequence = 0;
   get map() {
-    return MAPS[this.state.mapId];
+    return battleMap(this.state);
   }
   private receipts = new Map<string, CommandResult>();
   private ailments = new Map<

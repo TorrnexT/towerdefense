@@ -39,6 +39,10 @@
   color: #f2f0df;
   background: #243b31;
   --gold: #f2cf80;
+  --scrollbar-track: #152824;
+  --scrollbar-thumb: #899477;
+  --scrollbar-thumb-hover: #c4b37b;
+  --scrollbar-thumb-active: #f2cf80;
   --muted: #aabbb1;
   --border: #a1b6a538;
   --panel: linear-gradient(160deg, #263d39f5, #152824f5);
@@ -49,6 +53,55 @@
 }
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+/* Shared vertical and horizontal scrollbars across menus, dialogs and the HUD. */
+@supports selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    min-height: 28px;
+    min-width: 28px;
+    background: var(--scrollbar-thumb);
+    border: 2px solid var(--scrollbar-track);
+    border-radius: 10px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+  *::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-active);
+  }
+  *::-webkit-scrollbar-corner {
+    background: var(--scrollbar-track);
+  }
+}
+@media (forced-colors: active) {
+  * {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+  *::-webkit-scrollbar-track,
+  *::-webkit-scrollbar-corner {
+    background: Canvas;
+  }
+  *::-webkit-scrollbar-thumb,
+  *::-webkit-scrollbar-thumb:hover,
+  *::-webkit-scrollbar-thumb:active {
+    background: ButtonText;
+    border-color: Canvas;
+  }
 }
 html,
 body,
@@ -549,7 +602,6 @@ p {
   max-height: inherit;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
 }
 .detail-panel {
   padding: 13px 15px 10px;
@@ -2487,8 +2539,6 @@ button,
   overflow-x: auto;
   padding: 5px 2px 15px;
   flex-shrink: 0;
-  scrollbar-width: thin;
-  scrollbar-color: #788365 transparent;
 }
 .team-slot {
   position: relative;
@@ -2676,10 +2726,14 @@ button,
   z-index: 90;
   transform: translate(-50%, -70%) rotate(-5deg);
   width: 95px;
+  height: 134px;
   pointer-events: none;
   filter: drop-shadow(0 14px 20px #0008);
 }
-.team-drag-ghost button {
+.team-drag-ghost > .tower-card {
+  display: block;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 .party-team {
@@ -2809,10 +2863,15 @@ button,
   margin-right: 8px;
 }
 .campaign-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 44;
   background: #0b2429;
+}
+.campaign-backdrop,
+.campaign-backdrop * {
+  -webkit-user-select: none;
+  user-select: none;
 }
 .campaign-screen {
   position: absolute;
@@ -2856,7 +2915,7 @@ button,
 }
 .campaign-viewport {
   position: absolute;
-  inset: 0 345px 0 0;
+  inset: 0;
   overflow: hidden;
   touch-action: none;
   cursor: grab;
@@ -2958,9 +3017,9 @@ button,
 .mission-detail {
   position: absolute;
   right: 24px;
-  top: 140px;
-  width: 300px;
-  bottom: auto;
+  top: auto;
+  width: 320px;
+  bottom: max(24px, env(safe-area-inset-bottom));
   max-height: calc(100% - 164px);
   overflow: auto;
   z-index: 5;
@@ -2968,8 +3027,10 @@ button,
   border: 1px solid #d4bc8255;
   border-radius: 15px;
   box-shadow: 0 20px 50px #0005;
+  backdrop-filter: blur(16px);
 }
-.mission-detail > img {
+.mission-detail > .map-preview {
+  flex-shrink: 0;
   width: 100%;
   height: 160px;
   object-fit: cover;
@@ -3025,8 +3086,6 @@ button,
 .tower-cards {
   overflow-x: auto;
   overflow-y: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: #99a78044 transparent;
 }
 .tower-cards > .tower-card {
   flex: 0 0 116px;
@@ -3072,20 +3131,16 @@ button,
   .campaign-header h2 {
     font-size: 28px;
   }
-  .campaign-viewport {
-    right: 0;
-    bottom: 210px;
-  }
   .mission-detail {
     top: auto;
-    left: 20px;
-    right: 20px;
-    bottom: 20px;
-    width: auto;
-    max-height: 205px;
+    left: auto;
+    right: max(20px, env(safe-area-inset-right));
+    bottom: max(20px, env(safe-area-inset-bottom));
+    width: min(420px, calc(100% - 40px));
+    max-height: min(240px, calc(100% - 110px));
     display: flex;
   }
-  .mission-detail > img {
+  .mission-detail > .map-preview {
     width: 32%;
     height: auto;
     object-fit: cover;
@@ -3109,8 +3164,9 @@ button,
     margin: 10px 0;
   }
   .campaign-controls {
-    bottom: 230px;
-    left: 20px;
+    bottom: max(20px, env(safe-area-inset-bottom));
+    left: max(20px, env(safe-area-inset-left));
+    flex-direction: column;
   }
   .profile-badge {
     bottom: 78px;
@@ -3216,12 +3272,13 @@ button,
     height: 36px;
   }
   .mission-detail {
-    left: 12px;
-    right: 12px;
+    left: auto;
+    right: max(12px, env(safe-area-inset-right));
     bottom: max(12px, env(safe-area-inset-bottom));
-    max-height: 210px;
+    width: calc(100% - 24px);
+    max-height: min(210px, calc(100% - 110px));
   }
-  .mission-detail > img {
+  .mission-detail > .map-preview {
     width: 27%;
   }
   .mission-detail-body {
@@ -3244,11 +3301,9 @@ button,
     padding: 8px;
   }
   .campaign-controls {
-    bottom: 225px;
-    left: 12px;
-  }
-  .campaign-viewport {
-    bottom: 207px;
+    top: max(110px, calc(env(safe-area-inset-top) + 90px));
+    bottom: auto;
+    left: max(12px, env(safe-area-inset-left));
   }
   .profile-badge {
     bottom: 82px;
@@ -3339,20 +3394,16 @@ button,
   .campaign-header h2 {
     font-size: 22px;
   }
-  .campaign-viewport {
-    right: 280px;
-    bottom: 0;
-  }
   .mission-detail {
     left: auto;
     right: 12px;
-    top: 87px;
-    bottom: 12px;
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
     width: 250px;
-    max-height: none;
+    max-height: calc(100% - 90px);
     display: block;
   }
-  .mission-detail > img {
+  .mission-detail > .map-preview {
     height: 75px;
     width: 100%;
   }
@@ -3367,8 +3418,10 @@ button,
     font-size: 9px;
   }
   .campaign-controls {
-    bottom: 12px;
-    left: 12px;
+    top: auto;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: max(12px, env(safe-area-inset-left));
+    flex-direction: row;
   }
   .profile-badge {
     bottom: 43px;
@@ -4169,4 +4222,252 @@ button,
   line-height: 1.5;
   color: #aebda6;
   margin: 10px 0 0;
+}
+
+.card-lock {
+  position: absolute;
+  z-index: 2;
+  top: 42%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 5px 8px;
+  border: 1px solid #bba780;
+  border-radius: 6px;
+  background: #191c20ed;
+  color: #f2dfb7;
+  font-size: 12px;
+  font-weight: 700;
+}
+.tower-card:has(.card-lock) .tower-preview {
+  filter: grayscale(1);
+  opacity: 0.45;
+}
+
+/* Viewport-sized presentation, with no hit targets over the live battlefield. */
+.wave-announcement-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 26;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  perspective: 850px;
+}
+.wave-announcement {
+  --announcement-accent: #ffd67c;
+  --announcement-depth: #81501e;
+  position: relative;
+  width: min(720px, 94vw);
+  text-align: center;
+  color: var(--announcement-accent);
+  transform-style: preserve-3d;
+  animation: wave-announcement-arrive var(--announcement-duration) both;
+}
+.wave-announcement.final {
+  --announcement-accent: #ffb46b;
+  --announcement-depth: #8d301e;
+}
+.wave-announcement.complete {
+  --announcement-accent: #c8f7a0;
+  --announcement-depth: #365e32;
+}
+.wave-announcement-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateZ(36px);
+}
+.wave-announcement-medal {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  margin-bottom: 12px;
+  border: 2px solid var(--announcement-accent);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #416052, #0d231f);
+  box-shadow:
+    0 5px 0 var(--announcement-depth),
+    0 12px 24px #0006,
+    inset 0 2px 0 #ffffcc55;
+  rotate: -8deg;
+}
+.wave-announcement-medal svg {
+  width: 37px;
+  height: 37px;
+  rotate: 8deg;
+}
+.wave-announcement-number {
+  padding: 6px 24px;
+  border-block: 1px solid #ffe6ac77;
+  background: linear-gradient(90deg, transparent, #10281ee8 20% 80%, transparent);
+  font-size: clamp(11px, 1.3vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.23em;
+}
+.wave-announcement-title {
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0 22px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: clamp(34px, 6.5vw, 86px);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  text-shadow:
+    0 1px 0 #fff0c6,
+    0 3px 0 var(--announcement-depth),
+    0 6px 0 var(--announcement-depth),
+    0 9px 0 var(--announcement-depth),
+    0 13px 2px #081b1d,
+    0 18px 22px #0009;
+  -webkit-text-stroke: 1px var(--announcement-depth);
+}
+.wave-announcement-title span:first-child {
+  color: #fff4d8;
+  font-size: 0.64em;
+  letter-spacing: 0.08em;
+  margin-bottom: 7px;
+}
+.wave-announcement.complete .wave-announcement-title {
+  font-size: clamp(25px, 5vw, 66px);
+}
+.wave-announcement-note {
+  color: #fff5db;
+  font-weight: 600;
+  font-size: clamp(12px, 1.5vw, 17px);
+  text-shadow: 0 2px 5px #000;
+  padding: 8px 24px;
+  border-radius: 30px;
+  background: #10251dcc;
+}
+.wave-announcement-aura {
+  position: absolute;
+  inset: -70px -10%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #12281ef2 15%, #12281ea8 40%, transparent 70%);
+  transform: translateZ(-30px);
+}
+.wave-announcement-ring {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  left: calc(50% - 140px);
+  top: calc(50% - 140px);
+  border: 3px solid var(--announcement-accent);
+  border-radius: 50%;
+  box-shadow:
+    0 0 30px var(--announcement-accent),
+    inset 0 0 25px var(--announcement-accent);
+  animation: wave-announcement-ring 950ms 100ms both;
+}
+.wave-announcement-sparks {
+  position: absolute;
+  inset: 0;
+}
+.wave-announcement-sparks i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 7px;
+  height: 20px;
+  border-radius: 3px;
+  background: var(--announcement-accent);
+  box-shadow: 0 0 12px var(--announcement-accent);
+  animation: wave-announcement-spark 1100ms var(--spark-delay) both;
+}
+@keyframes wave-announcement-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) translateZ(-350px) rotateX(45deg) rotateZ(-8deg) scale(0.4);
+  }
+  14% {
+    opacity: 1;
+    transform: translateY(-8px) translateZ(55px) rotateX(-9deg) rotateZ(2deg) scale(1.08);
+  }
+  23% {
+    transform: translateY(0) translateZ(0) rotateX(3deg) rotateZ(-1deg) scale(0.98);
+  }
+  32%,
+  77% {
+    opacity: 1;
+    transform: translateY(0) translateZ(0) rotateX(0) rotateZ(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-45px) translateZ(-100px) rotateX(-12deg) scale(0.88);
+  }
+}
+@keyframes wave-announcement-ring {
+  from {
+    opacity: 0.6;
+    transform: scale(0.3) rotateX(30deg);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.2) rotateX(0);
+  }
+}
+@keyframes wave-announcement-spark {
+  from {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateY(-55px) scale(0.5);
+  }
+  20% {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--spark-angle)) translateY(clamp(-260px, -25vw, -145px)) scale(0.15);
+  }
+}
+@media (max-height: 500px) {
+  .wave-announcement-medal {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+  }
+  .wave-announcement-medal svg {
+    width: 26px;
+    height: 26px;
+  }
+  .wave-announcement-title {
+    font-size: 48px;
+    margin: 10px 0 18px;
+  }
+  .wave-announcement.complete .wave-announcement-title {
+    font-size: 38px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wave-announcement {
+    animation-name: wave-announcement-fade;
+    transform: none;
+  }
+  .wave-announcement-content {
+    transform: none;
+  }
+  .wave-announcement-ring,
+  .wave-announcement-sparks {
+    display: none;
+  }
+}
+@keyframes wave-announcement-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  12%,
+  82% {
+    opacity: 1;
+  }
 }

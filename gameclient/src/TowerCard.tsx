@@ -1,11 +1,12 @@
 import type { ButtonHTMLAttributes } from 'react';
 import { TowerStars } from './TowerStars';
-import { Coins, Crosshair, Sparkles, Flame, Bomb, Droplets, Snowflake } from 'lucide-react';
+import { Lock, Coins, Crosshair, Sparkles, Flame, Bomb, Droplets, Snowflake } from 'lucide-react';
 import { TOWERS, DAMAGE_LABELS, PROJECTILE_STYLE, type TowerKind } from '@emberwatch/shared';
 export function TowerCard({
   kind,
   rank = 0,
   unavailable = false,
+  lockedLevel,
   preview,
   selected = false,
   poor = false,
@@ -15,6 +16,7 @@ export function TowerCard({
   kind: TowerKind;
   rank?: number;
   unavailable?: boolean;
+  lockedLevel?: number;
   preview?: string;
   selected?: boolean;
   poor?: boolean;
@@ -44,6 +46,11 @@ export function TowerCard({
       style={{ '--tower-color': t.color, ...props.style } as React.CSSProperties}
       onDragStart={(e) => e.preventDefault()}
     >
+      {lockedLevel && (
+        <span className="card-lock">
+          <Lock size={12} /> Level {lockedLevel}
+        </span>
+      )}
       <TowerStars rank={rank} />
       {['inferno', 'venom', 'frost'].includes(kind) && (
         <span className="card-effect">

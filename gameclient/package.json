@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@emberwatch/shared": "*",
+    "@emberwatch/shared": "workspace:*",
     "@colyseus/sdk": "0.18.2",
     "three": "^0.180.0",
     "react": "^19.1.1",

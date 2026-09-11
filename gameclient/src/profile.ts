@@ -1,5 +1,8 @@
 import {
   DEFAULT_LOADOUT,
+  towerUnlocked,
+  slotCount,
+  TOWER_UNLOCK_LEVELS,
   TOWERS,
   validXp,
   validResearch,
@@ -81,7 +84,8 @@ function validate(value: unknown): Profile {
     !Array.isArray(p.claimed) ||
     p.claimed.some((id) => typeof id !== 'string' || id.length > 100) ||
     new Set(p.claimed).size !== p.claimed.length ||
-    loadoutError(p.loadout, p.completed, p.xp) ||
+    loadoutError(p.loadout, p.completed, Math.max(p.xp, 1300)) ||
+    p.loadout.length > slotCount(p.completed, p.xp) ||
     !p.records ||
     !p.missions
   )
@@ -100,6 +104,10 @@ function validate(value: unknown): Profile {
       throw new Error('Ungültiger Missionsrekord.');
   for (let i = 0; i < p.completed; i++)
     if (!p.missions[MISSIONS[i].id]) throw new Error('Unvollständiger Fortschritt.');
+  // Keep older saves and research intact; remove newly locked types from the active team.
+  p.loadout = p.loadout.filter((kind) => towerUnlocked(kind, p.completed, p.xp));
+  if (!p.loadout.length) p.loadout = [...DEFAULT_LOADOUT];
+  p.loadout = p.loadout.slice(0, slotCount(p.completed, p.xp));
   return p;
 }
 let keyPromise: Promise<CryptoKey> | undefined;
@@ -301,6 +309,8 @@ export class ProfileStore {
     return this.update((p) => {
       const rank = p.research[kind] || 0;
       if (!Object.hasOwn(TOWERS, kind)) throw new RejectedMutation('Unbekannter Turm.');
+      if (!towerUnlocked(kind, p.completed, p.xp))
+        throw new RejectedMutation(`Dieser Turm wird auf Level ${TOWER_UNLOCK_LEVELS[kind]} freigeschaltet.`);
       if (rank !== expectedRank)
         throw new RejectedMutation('Dieser Turm wurde bereits verändert. Bitte prüfe den aktuellen Stand.');
       if (rank >= MAX_RESEARCH_RANK) throw new RejectedMutation('Drei volle Sterne erreicht.');

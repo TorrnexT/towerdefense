@@ -9,7 +9,9 @@ import {
   PLAYER_COLORS,
   PROJECTILE_STYLE,
   MAPS,
+  battleMap,
   type MapId,
+  type MapDefinition,
   TOWERS,
   towerStats,
   ENEMY_COLLIDERS,
@@ -326,6 +328,7 @@ export class World {
   private state?: GameView;
   private landscape?: Landscape;
   private mapId: MapId = 'waldtal';
+  private map: MapDefinition = MAPS.waldtal;
   private reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   research: Partial<Record<TowerKind, number>> = {};
   private buildKind: TowerKind | null = null;
@@ -391,7 +394,7 @@ export class World {
     sun.shadow.bias = -0.001;
     sun.shadow.normalBias = 0.08;
     this.scene.add(sun);
-    this.setMap('waldtal');
+    this.setMap(MAPS.waldtal);
     this.resizeObserver = new ResizeObserver(() => this.resize());
     this.resizeObserver.observe(host);
     this.resize();
@@ -435,8 +438,8 @@ export class World {
       root.add(batch);
     }
   }
-  private setMap(id: MapId) {
-    if (this.landscape && this.mapId === id) return;
+  private setMap(map: MapDefinition) {
+    if (this.landscape && this.map === map) return;
     for (const o of this.towerObjects.values()) this.scene.remove(o.root);
     this.towerObjects.clear();
     for (const o of this.enemyObjects.values()) {
@@ -447,12 +450,14 @@ export class World {
     this.enemyObjects.clear();
     for (const id of [...this.projectileObjects.keys()]) this.removeProjectile(id);
     this.landscape?.dispose();
-    this.mapId = id;
-    this.landscape = new Landscape(MAPS[id], this.assets);
+    this.mapId = map.id;
+    this.map = map;
+    this.landscape = new Landscape(map, this.assets);
     this.scene.add(this.landscape.group);
     this.batchStaticMeshes(this.landscape.group);
-    this.scene.background = new THREE.Color(BIOME_COLORS[MAPS[id].biome].background);
-    this.renderer.domElement.setAttribute('aria-label', `3D-Spielfeld: ${MAPS[id].name}`);
+    this.scene.background = new THREE.Color(BIOME_COLORS[map.biome].background);
+    this.renderer.domElement.setAttribute('aria-label', `3D-Spielfeld: ${map.name}`);
+    this.renderer.domElement.dataset.layout = map.name;
     this.impacted.clear();
     for (const b of this.blasts) {
       this.scene.remove(b.mesh);
@@ -466,7 +471,7 @@ export class World {
     this.renderer.shadowMap.needsUpdate = true;
   }
   update(state: GameView) {
-    this.setMap(state.mapId || 'waldtal');
+    this.setMap(battleMap(state));
     this.state = state;
     for (const t of Object.values(state.towers)) {
       let entry = this.towerObjects.get(t.id);
@@ -667,6 +672,8 @@ export class World {
     if (this.state) {
       const key = JSON.stringify([
         this.state.mapId,
+        this.state.ruleSet,
+        this.state.missionId,
         this.state.mode,
         this.state.lobby,
         this.state.buildMode,
@@ -712,7 +719,7 @@ export class World {
     const pos = this.buildKind ? this.target : selected;
     const error =
       this.buildKind && pos
-        ? this.previewError || placementError(pos, Object.values(this.state?.towers || {}), MAPS[this.mapId])
+        ? this.previewError || placementError(pos, Object.values(this.state?.towers || {}), this.map)
         : null;
     const key = JSON.stringify([
       this.buildKind,

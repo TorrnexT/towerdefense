@@ -1,0 +1,11 @@
+packages:
+  - gameclient
+  - server
+  - shared
+
+overrides:
+  qs: 6.16.0
+
+allowBuilds:
+  esbuild: true
+  msgpackr-extract: true

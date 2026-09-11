@@ -3,22 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "gameclient",
-    "server",
-    "shared"
-  ],
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "dev": "concurrently -k -n SERVER,GAME -c cyan,green \"npm run dev -w server\" \"npm run dev -w gameclient\"",
-    "build": "npm run typecheck && npm run build -w server && npm run build -w gameclient && node scripts/build-offline.mjs",
+    "dev": "concurrently -k -n SERVER,GAME -c cyan,green \"pnpm --filter @emberwatch/server dev\" \"pnpm --filter @emberwatch/gameclient dev\"",
+    "build": "pnpm typecheck && pnpm --filter @emberwatch/server build && pnpm --filter @emberwatch/gameclient build && node scripts/build-offline.mjs",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test server/test/*.test.ts",
     "test:integration": "tsx --test server/test/integration/*.test.ts",
     "verify:browser": "node verification/browser.mjs",
-    "start": "npm run start -w server",
+    "start": "pnpm --filter @emberwatch/server start",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "verify:production": "node verification/production.mjs",
@@ -40,9 +35,11 @@
     "concurrently": "^9.2.1",
     "prettier": "^3.9.6",
     "tsx": "^4.20.5",
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "@colyseus/core": "0.18.11",
+    "@colyseus/sdk": "0.18.2",
+    "@emberwatch/shared": "workspace:*",
+    "vite": "^6.4.1"
   },
-  "overrides": {
-    "qs": "6.16.0"
-  }
+  "packageManager": "pnpm@12.3.4"
 }

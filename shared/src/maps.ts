@@ -435,7 +435,7 @@ export function onBridge(p: Point, map: MapDefinition, margin = 0) {
     return along >= -margin && along <= len + margin && across <= b.width / 2 + margin;
   });
 }
-const segmentCache = new Map<MapId, ReturnType<typeof routeSegments>>();
+const segmentCache = new WeakMap<MapDefinition, ReturnType<typeof routeSegments>>();
 export function placementError(
   p: Point,
   towers: Iterable<Point>,
@@ -455,10 +455,10 @@ export function placementError(
   if (onWater(p, map, map.towerRadius))
     return map.biome === 'volcano' ? 'Auf Lava kannst du nicht bauen.' : 'Auf Wasser kannst du nicht bauen.';
   if (onBridge(p, map, map.towerRadius)) return 'Die Brücke muss frei bleiben.';
-  let segments = segmentCache.get(map.id);
+  let segments = segmentCache.get(map);
   if (!segments) {
     segments = routeSegments(map);
-    segmentCache.set(map.id, segments);
+    segmentCache.set(map, segments);
   }
   if (segments.some(({ a, b }) => segmentDistance(p, a, b) < map.pathRadius + map.towerRadius))
     return 'Der Weg muss frei bleiben.';

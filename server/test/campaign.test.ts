@@ -4,6 +4,10 @@ import { Simulation } from '@emberwatch/shared/simulation';
 import { Simulation as ServerSimulation } from '../src/simulation';
 import {
   MISSIONS,
+  DEFAULT_LOADOUT,
+  LEVEL_THRESHOLDS,
+  TOWER_UNLOCK_LEVELS,
+  towerUnlocked,
   TOWERS,
   MAPS,
   slotCount,
@@ -114,7 +118,7 @@ test('coop mission intersection, individual teams, readiness and reserved-member
   const s = game(2);
   s.state.mode = 'coop';
   s.state.lobby = true;
-  s.addPlayer('guest', 'Gast', { completed: 0, loadout: ['meteor'] });
+  s.addPlayer('guest', 'Gast', { completed: 0, xp: 1300, loadout: ['meteor'] });
   assert.equal(command(s, { action: 'setMission', missionId: 'mission-02' }).ok, false);
   assert.equal(command(s, { action: 'ready', ready: true }, 'guest').ok, false);
   assert.equal(command(s, { action: 'setMission', missionId: 'mission-01' }, 'guest').ok, false);
@@ -154,7 +158,7 @@ test('browser and server entrypoints produce identical state from the same comma
 for (const kind of Object.keys(TOWERS) as TowerKind[])
   test(`${kind} team allows repeat placements and all five upgrade levels`, () => {
     const s = new Simulation();
-    s.addPlayer('p', 'Hüter', { loadout: [kind] });
+    s.addPlayer('p', 'Hüter', { xp: 1300, loadout: [kind] });
     s.state.players.get('p')!.gold = 10000;
     const r = command(s, { action: 'build', kind, x: -4, z: 1 });
     assert.ok(r.ok);
@@ -166,3 +170,26 @@ for (const kind of Object.keys(TOWERS) as TowerKind[])
     }
     assert.equal(command(s, { action: 'upgrade', towerId: r.towerId }).ok, false);
   });
+
+test('tower unlocks follow XP boundaries and are enforced on join and lobby changes', () => {
+  assert.deepEqual(
+    (Object.keys(TOWERS) as TowerKind[]).filter((k) => towerUnlocked(k, 0)).sort(),
+    [...DEFAULT_LOADOUT].sort(),
+  );
+  for (const kind of Object.keys(TOWERS) as TowerKind[]) {
+    const xp = LEVEL_THRESHOLDS[TOWER_UNLOCK_LEVELS[kind] - 1];
+    assert.equal(loadoutError([kind], 0, xp), null);
+    const s = new Simulation();
+    s.addPlayer('p', 'Hüter', { xp, loadout: [kind] });
+    if (xp > 0) {
+      assert.ok(loadoutError([kind], 0, xp - 1));
+      assert.throws(() => new Simulation().addPlayer('p', 'Hüter', { xp: xp - 1, loadout: [kind] }), /Level/);
+      const lobby = new Simulation();
+      lobby.state.mode = 'coop';
+      lobby.state.lobby = true;
+      lobby.addPlayer('p', 'Hüter', { xp: xp - 1 });
+      assert.equal(command(lobby, { action: 'setLoadout', loadout: [kind] }).ok, false);
+      assert.equal(command(lobby, { action: 'setLoadout', loadout: [kind], xp }).ok, true);
+    }
+  }
+});

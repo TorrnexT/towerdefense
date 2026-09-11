@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import {
   MAPS,
+  battleMap,
   MISSIONS,
   DEFAULT_LOADOUT,
   getMission,
@@ -72,6 +73,7 @@ import { Assets, World } from './world';
 import type { ConnectionStatus } from './network';
 import { GameSession } from './session';
 import { profileStore } from './profile';
+import { WaveAnnouncement } from './WaveAnnouncement';
 import { VictoryDialog } from './VictoryDialog';
 import { TowerResearch } from './TowerResearch';
 import { TowerCard } from './TowerCard';
@@ -242,12 +244,12 @@ function App() {
         ? (live.mode === 'coop'
             ? territoryError(
                 point,
-                MAPS[live.mapId],
+                battleMap(live),
                 live.buildMode || 'all',
                 live.zoneOwners || [],
                 member.id,
               )
-            : null) || buildError(kind, point, Object.values(live.towers), MAPS[live.mapId], member.gold)
+            : null) || buildError(kind, point, Object.values(live.towers), battleMap(live), member.gold)
         : 'Ziehe den Turm auf die Map.';
     },
     onStart: () => {
@@ -562,6 +564,23 @@ function App() {
   }
   return (
     <div className={'app' + (buildKind ? ' is-dragging' : '') + (menu ? ' in-menu' : '')}>
+      <WaveAnnouncement
+        state={state}
+        sessionId={connection.current?.room?.roomId || ''}
+        enabled={
+          loaded &&
+          status === 'online' &&
+          !menu &&
+          !state.lobby &&
+          !help &&
+          !party &&
+          !teamPicker &&
+          !campaignPicker &&
+          !mapPicker &&
+          !accountOpen &&
+          !researchMenu
+        }
+      />
       {drag.preview && !point && (
         <div className="drag-cursor" aria-hidden="true" style={{ left: drag.preview.x, top: drag.preview.y }}>
           <img src={previews[drag.preview.kind]} alt="" draggable={false} />

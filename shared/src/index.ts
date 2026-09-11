@@ -497,3 +497,5 @@ export const PROJECTILE_STYLE: Record<TowerKind, 'bolt' | 'arcane' | 'fire' | 's
 };
 
 export * from './territories';
+
+export * from './campaign-maps';

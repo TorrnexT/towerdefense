@@ -4,7 +4,7 @@ import { Simulation } from '@emberwatch/shared/simulation';
 import { towerStats, PRISM_BEAM, pathPosition, damageAfterDefense, ENEMIES } from '@emberwatch/shared';
 function setup(level = 1, research = 0) {
   const s = new Simulation();
-  s.addPlayer('p', 'Laser', { loadout: ['prism'] });
+  s.addPlayer('p', 'Laser', { xp: 1300, loadout: ['prism'] });
   const result = s.command('p', { id: 'build', action: 'build', kind: 'prism', x: -4, z: 1 });
   assert.ok(result.ok);
   const t = s.state.towers.get(result.towerId!)!;

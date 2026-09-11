@@ -1,0 +1,14 @@
+version: 1
+vhosts:
+  - id: emberwatch
+    name: Emberwatch
+    resource: gameclient
+    dynamicDomains: true
+    tls:
+      mode: disabled
+    routes:
+      - id: gameserver
+        path: /api/
+        process: emberwatch-server
+        processPort: 2567
+        websockets: true

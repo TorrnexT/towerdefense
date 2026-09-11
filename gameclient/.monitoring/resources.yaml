@@ -1,0 +1,8 @@
+version: 1
+resources:
+  - id: gameclient
+    name: Emberwatch Gameclient
+    buildOutputDirectory: dist
+    directory: ""
+    sourceDirectory: gameclient/dist
+    managedVHost: false

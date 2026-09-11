@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import {
   BUILD_MODES,
-  MAPS,
+  battleMap,
   PLAYER_COLORS,
   territoryPolygons,
   type BuildMode,
@@ -18,7 +18,7 @@ export function BuildZones({
   onChange: (mode: BuildMode, owners: string[]) => void;
 }) {
   const clipId = useId(),
-    map = MAPS[state.mapId],
+    map = battleMap(state),
     mode = state.buildMode || 'all';
   const owners = state.zoneOwners?.length
     ? state.zoneOwners

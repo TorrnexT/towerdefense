@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { MAPS, inPolygon, territoryPolygons, type GameView, type Point } from '@emberwatch/shared';
+import { battleMap, inPolygon, territoryPolygons, type GameView, type Point } from '@emberwatch/shared';
 /** Clip a triangle against a convex territory; map concavities remain intact. */
 function clip(subject: Point[], boundary: Point[]) {
   let result = subject;
@@ -29,7 +29,7 @@ export function createTerritoryOverlay(state: GameView, playerId: string, draggi
   const owners = state.zoneOwners || [],
     mode = state.buildMode || 'all';
   if (state.mode !== 'coop' || state.lobby || mode === 'all' || owners.length < 2) return group;
-  const map = MAPS[state.mapId],
+  const map = battleMap(state),
     polygons = territoryPolygons(map, mode, owners.length);
   if (dragging) {
     const triangles = THREE.ShapeUtils.triangulateShape(

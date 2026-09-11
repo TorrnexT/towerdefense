@@ -1,0 +1,13 @@
+version: 1
+processes:
+  - id: emberwatch-server
+    roles: [web]
+    processType: nodejs-express
+    runtime: nodejs
+    script: dist/index.js
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "2567"
+    autorestart: true

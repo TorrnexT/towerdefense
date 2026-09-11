@@ -1,0 +1,25 @@
+name: Emberwatch Gameclient
+on: workflow_dispatch
+jobs:
+  gameclient:
+    name: Gameclient bauen
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "12.3.4"
+      - name: Workspace-Abhängigkeiten installieren
+        working-directory: ..
+        env:
+          NODE_ENV: development
+        run: pnpm install --frozen-lockfile
+      - name: Gameclient bauen
+        env:
+          VITE_SERVER_URL: /api
+        run: pnpm run build
+      - name: Offline-Paket erzeugen
+        run: node ../scripts/build-offline.mjs

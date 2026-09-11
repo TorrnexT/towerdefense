@@ -11,12 +11,14 @@
   "dependencies": {
     "@colyseus/core": "0.18.11",
     "@colyseus/ws-transport": "0.18.2",
-    "@emberwatch/shared": "*",
+    "@emberwatch/shared": "workspace:*",
     "express": "^5.2.1",
-    "qs": "6.16.0"
+    "qs": "6.16.0",
+    "@colyseus/schema": "5.0.27"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "@colyseus/sdk": "0.18.2"
   }
 }

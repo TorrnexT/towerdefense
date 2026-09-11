@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, Plus, Minus, LocateFixed, Lock, Check, Flag, ChevronRight, Trophy, Users } from 'lucide-react';
-import { MISSIONS, MAPS, getMission, type Mission } from '@emberwatch/shared';
+import { MISSIONS, MAPS, CAMPAIGN_MAPS, entrances, getMission, type Mission } from '@emberwatch/shared';
+import { MapPreview } from './MapPicker';
 import { useDialog } from './useDialog';
 interface Props {
   completed: number;
@@ -39,7 +40,7 @@ export function CampaignMap(p: Props) {
   function center() {
     const r = viewport.current?.getBoundingClientRect();
     if (!r) return;
-    const scale = Math.max(0.55, Math.min(1, Math.min(r.width, r.height) / 720));
+    const scale = r.width / size;
     setView(
       bounded({
         x: r.width * 0.5 - selection.current.x * size * scale,
@@ -52,7 +53,7 @@ export function CampaignMap(p: Props) {
     const r = viewport.current?.getBoundingClientRect();
     if (!r) return;
     const v = state.current,
-      s = Math.min(2.2, Math.max(0.35, v.scale * factor)),
+      s = Math.min((r.width / size) * 2.5, Math.max(r.width / size, v.scale * factor)),
       x = cx ?? r.width / 2,
       y = cy ?? r.height / 2;
     setView(bounded({ scale: s, x: x - ((x - v.x) * s) / v.scale, y: y - ((y - v.y) * s) / v.scale }));
@@ -107,8 +108,11 @@ export function CampaignMap(p: Props) {
     if (Math.hypot(x - g.x, y - g.y) > 5 || points.length > 1) moved.current = true;
     const r = viewport.current!.getBoundingClientRect(),
       s = Math.min(
-        2.2,
-        Math.max(0.35, g.view.scale * (g.distance ? Math.hypot(a.x - b.x, a.y - b.y) / g.distance : 1)),
+        (r.width / size) * 2.5,
+        Math.max(
+          r.width / size,
+          g.view.scale * (g.distance ? Math.hypot(a.x - b.x, a.y - b.y) / g.distance : 1),
+        ),
       );
     setView(
       bounded({
@@ -175,7 +179,7 @@ export function CampaignMap(p: Props) {
               className="campaign-world-art"
               src="/assets/campaign/world.webp"
               srcSet="/assets/campaign/world-small.webp 768w, /assets/campaign/world.webp 1254w"
-              sizes="(max-width: 600px) 768px, 1254px"
+              sizes="100vw"
               alt="Fantasy-Weltkarte mit Waldtal, Silberfurt, Bernsteinhain, Frostklamm und Glutspalten"
               draggable={false}
             />
@@ -239,7 +243,7 @@ export function CampaignMap(p: Props) {
           </button>
         </div>
         <aside className="mission-detail" aria-live="polite">
-          <img src={`/assets/campaign/${selected.mapId}-small.webp`} alt="" />
+          <MapPreview map={CAMPAIGN_MAPS[selected.id]} />
           <div className="mission-detail-body">
             <span className="eyebrow">
               {MAPS[selected.mapId].name} · MISSION {String(selected.number).padStart(2, '0')}
@@ -247,6 +251,10 @@ export function CampaignMap(p: Props) {
             <h3>{selected.name}</h3>
             <p>{selected.description}</p>
             <div className="mission-meta">
+              <span>
+                {entrances(CAMPAIGN_MAPS[selected.id]).length} Eingänge ·{' '}
+                {CAMPAIGN_MAPS[selected.id].routes.length} Routen
+              </span>
               <span>
                 <Flag size={14} />
                 {selected.waves} Wellen

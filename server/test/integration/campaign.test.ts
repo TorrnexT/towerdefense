@@ -52,6 +52,7 @@ test('campaign rooms enforce teams and mutual unlocks; victory survives offline 
         ruleSet: 'campaign',
         missionId: 'mission-01',
         completed: 1,
+        xp: 300,
         loadout: ['ballista', 'sniper'],
         research: { ballista: 1 },
       }),
@@ -66,7 +67,7 @@ test('campaign rooms enforce teams and mutual unlocks; victory survives offline 
     await send(a, { action: 'ready', ready: true });
     await send(b, { action: 'ready', ready: true });
     await until(() => a.state.players.get(a.sessionId)?.ready && a.state.players.get(b.sessionId)?.ready);
-    await send(b, { action: 'setLoadout', loadout: ['prism'] });
+    await send(b, { action: 'setLoadout', loadout: ['fire'] });
     await until(() => !a.state.players.get(b.sessionId).ready);
     assert.equal(a.state.players.get(a.sessionId).ready, true);
     await send(b, { action: 'ready', ready: true });
@@ -102,7 +103,7 @@ test('campaign rooms enforce teams and mutual unlocks; victory survives offline 
     assert.equal(b.state.players.get(playerId).rewards.size, 1);
     assert.equal([...b.state.players.get(playerId).rewards.values()][0].research, 50);
     assert.equal(b.state.players.get(playerId).victories.get('mission-01').hp, 100);
-    assert.deepEqual([...b.state.players.get(playerId).loadout], ['prism']);
+    assert.deepEqual([...b.state.players.get(playerId).loadout], ['fire']);
     assert.equal(separate.state.ruleSet, 'endless');
     assert.equal(separate.state.missionId, '');
   } finally {

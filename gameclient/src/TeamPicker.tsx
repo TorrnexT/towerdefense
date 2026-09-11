@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Lock, Plus, ChevronRight, Shield, GripVertical } from 'lucide-react';
 import {
   TOWERS,
+  towerUnlocked,
+  TOWER_UNLOCK_LEVELS,
   slotCount,
   profileLevel,
   LEVEL_THRESHOLDS,
@@ -47,6 +50,7 @@ export function TeamPicker(p: Props) {
   } | null>(null);
   const suppress = useRef(false);
   function put(kind: TowerKind, index: number) {
+    if (!towerUnlocked(kind, p.completed, p.xp)) return;
     if (index >= latest.current.count) {
       setHint('Dieser Slot ist noch gesperrt.');
       return;
@@ -135,6 +139,7 @@ export function TeamPicker(p: Props) {
     };
   }, []);
   function start(e: React.PointerEvent, kind: TowerKind) {
+    if (!towerUnlocked(kind, p.completed, p.xp)) return;
     if (p.busy || !e.isPrimary || e.button !== 0) return;
     const d = {
       kind,
@@ -155,6 +160,7 @@ export function TeamPicker(p: Props) {
       }, 240);
   }
   function choose(kind: TowerKind, detail = 1) {
+    if (!towerUnlocked(kind, p.completed, p.xp)) return;
     if (suppress.current && detail > 0) return;
     setPicked(kind);
     setHint(`${TOWERS[kind].name} gewählt. Tippe auf einen Slot.`);
@@ -244,7 +250,14 @@ export function TeamPicker(p: Props) {
           ))}
         </div>
         <div className="team-catalog-heading">
-          <strong>DEIN ARSENAL</strong>
+          <strong>
+            DEIN ARSENAL ·{' '}
+            {
+              (Object.keys(TOWERS) as TowerKind[]).filter((kind) => towerUnlocked(kind, p.completed, p.xp))
+                .length
+            }
+            /{Object.keys(TOWERS).length}
+          </strong>
           <span>
             <GripVertical size={13} /> Ziehen oder Turm und Slot antippen
           </span>
@@ -256,19 +269,27 @@ export function TeamPicker(p: Props) {
                 kind={kind}
                 rank={p.research[kind] || 0}
                 preview={p.previews[kind]}
+                unavailable={!towerUnlocked(kind, p.completed, p.xp)}
+                lockedLevel={towerUnlocked(kind, p.completed, p.xp) ? undefined : TOWER_UNLOCK_LEVELS[kind]}
                 selected={picked === kind || team.includes(kind)}
                 disabled={p.busy}
-                aria-label={`${TOWERS[kind].name} auswählen`}
+                aria-label={
+                  towerUnlocked(kind, p.completed, p.xp)
+                    ? `${TOWERS[kind].name} auswählen`
+                    : `${TOWERS[kind].name}: gesperrt bis Level ${TOWER_UNLOCK_LEVELS[kind]}`
+                }
                 onPointerDown={(e) => start(e, kind)}
                 onClick={(e) => choose(kind, e.detail)}
               />
               <button
                 className="research-card-action"
-                disabled={p.busy}
+                disabled={p.busy || !towerUnlocked(kind, p.completed, p.xp)}
                 aria-label={`${TOWERS[kind].name} aufwerten`}
                 onClick={() => p.onResearch(kind)}
               >
-                Erforschen · {p.research[kind] || 0}/15
+                {towerUnlocked(kind, p.completed, p.xp)
+                  ? `Erforschen · ${p.research[kind] || 0}/15`
+                  : `Ab Level ${TOWER_UNLOCK_LEVELS[kind]}`}
               </button>
             </div>
           ))}
@@ -283,17 +304,19 @@ export function TeamPicker(p: Props) {
           </button>
         </footer>
       </section>
-      {ghost && (
-        <div className="team-drag-ghost" style={{ left: ghost.x, top: ghost.y }}>
-          <TowerCard
-            rank={p.research[ghost.kind] || 0}
-            kind={ghost.kind}
-            preview={p.previews[ghost.kind]}
-            compact
-            tabIndex={-1}
-          />
-        </div>
-      )}
+      {ghost &&
+        createPortal(
+          <div className="team-drag-ghost" aria-hidden="true" style={{ left: ghost.x, top: ghost.y }}>
+            <TowerCard
+              rank={p.research[ghost.kind] || 0}
+              kind={ghost.kind}
+              preview={p.previews[ghost.kind]}
+              compact
+              tabIndex={-1}
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 }

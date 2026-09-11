@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { X, FlaskConical, ArrowRight, Lock, Check } from 'lucide-react';
 import {
   TOWERS,
+  towerUnlocked,
+  TOWER_UNLOCK_LEVELS,
   towerStats,
   PRISM_BEAM,
   towerEffect,
@@ -37,8 +39,7 @@ export function TowerResearch({
     current = towerStats(kind, 1, rank),
     next = towerStats(kind, 1, Math.min(15, rank + 1)),
     gains = RESEARCH_GAINS[kind];
-  // All ten existing types remain unlocked. Availability is represented separately from affordability.
-  const unlocked = Object.hasOwn(TOWERS, kind);
+  const unlocked = towerUnlocked(kind, profile.completed, profile.xp);
   async function upgrade() {
     if (busy) return;
     setBusy(true);
@@ -111,6 +112,9 @@ export function TowerResearch({
                 kind={k}
                 rank={profile.research[k] || 0}
                 preview={previews[k]}
+                lockedLevel={
+                  towerUnlocked(k, profile.completed, profile.xp) ? undefined : TOWER_UNLOCK_LEVELS[k]
+                }
                 selected={k === kind}
                 disabled={busy}
                 aria-label={`${TOWERS[k].name} erforschen`}
@@ -166,12 +170,12 @@ export function TowerResearch({
               {max
                 ? 'Drei Sterne erreicht'
                 : !unlocked
-                  ? 'Noch nicht verfügbar'
+                  ? `Freischaltung auf Level ${TOWER_UNLOCK_LEVELS[kind]}`
                   : busy
                     ? 'Wird verbessert …'
                     : `Aufwerten · ${cost} FP`}
             </button>
-            {!max && points < cost && (
+            {unlocked && !max && points < cost && (
               <small className="research-shortfall">Noch {cost - points} Forschungspunkte benötigt.</small>
             )}
             <p className="research-notice">

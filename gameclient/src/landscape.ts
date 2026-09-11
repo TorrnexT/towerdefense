@@ -83,7 +83,7 @@ export class Landscape {
     private assets: Assets,
   ) {
     this.palette = BIOME_COLORS[map.biome];
-    this.seed = map.id.split('').reduce((n, c) => n * 31 + c.charCodeAt(0), 17) >>> 0;
+    this.seed = (map.id + map.name).split('').reduce((n, c) => n * 31 + c.charCodeAt(0), 17) >>> 0;
     this.group.name = `landscape-${map.id}`;
     this.terrain();
     this.water();

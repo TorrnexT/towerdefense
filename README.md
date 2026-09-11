@@ -4,21 +4,42 @@ Fantasy-Tower-Defense mit Three.js und React: **15 Kampagnenmissionen**, fünf 3
 
 ## Start
 
-Node.js 22+, npm und ein aktueller Browser mit WebGL 2, Web Crypto, IndexedDB und Web Locks werden benötigt.
+Node.js 22+, pnpm 12.3.4 und ein aktueller Browser mit WebGL 2, Web Crypto, IndexedDB und Web Locks werden benötigt.
 
 ```sh
-npm install
-npm run dev
+corepack enable
+pnpm install
+pnpm run dev
 ```
 
-Spiel: http://localhost:5173 · Koop-Server/Healthcheck: http://localhost:2567/health. Client, Modelle, Bilder und Fonts werden lokal ausgeliefert. `npm run dev` startet Client und Server gemeinsam. Solo benötigt keine Serververbindung; in der Entwicklung liefert Vite die Dateien aus.
+Spiel: http://localhost:5173 · Koop-Server/Healthcheck: http://localhost:2567/health. Client, Modelle, Bilder und Fonts werden lokal ausgeliefert. `pnpm run dev` startet Client und Server gemeinsam. Solo benötigt keine Serververbindung; in der Entwicklung liefert Vite die Dateien aus.
 
 ```sh
-npm run build
-npm start
+pnpm run build
+pnpm start
 ```
 
 Der Produktionsserver liefert `gameclient/dist` unter http://localhost:2567 aus. `PORT` überschreibt den Port. Bei separatem Hosting vor dem Build `VITE_SERVER_URL=https://gameserver.example` setzen. HTTPS-Proxys müssen WebSocket-Upgrades unterstützen. Öffentliches Hosting wird nicht eingerichtet.
+
+Client und Server können auch einzeln mit `pnpm --filter @emberwatch/gameclient dev` beziehungsweise `pnpm --filter @emberwatch/server dev` gestartet werden. Die drei Pakete werden über `pnpm-workspace.yaml` verbunden; `pnpm-lock.yaml` hält die Abhängigkeiten fest. In CI: `pnpm install --frozen-lockfile`.
+
+Für den Server-Manager liegen vollständige Build-Workflows in `server/.monitoring/build.yaml` und `gameclient/.monitoring/build.yaml`. Beide verwenden Ubuntu 24.04, Node.js 24 und pnpm 12.3.4 und können vom Manager als aufeinanderfolgende Jobs in einem Runner-Aufruf ausgeführt werden. Die `run`-Pfade beziehen sich jeweils auf den Paketordner; der Manager stellt den Checkout bereit.
+
+- Prozessquelle: `server`; Startdatei: `dist/index.js`. Der Server-Workflow erzeugt ein portables Artefakt mit `server/dist`, `server/package.json` und Produktionsabhängigkeiten. Die Workspace-Abhängigkeiten müssen auf dem Zielserver nicht installiert werden.
+- Ressourcenquelle: `gameclient`; Build-Ausgabe: `dist`. Der Gameclient-Workflow erzeugt auch das Offline-Paket; der Manager übernimmt die Ausgabe als Ressourcen-Artefakt.
+
+Die Anwendungskonfiguration wird ebenfalls aus YAML übernommen:
+
+- `server/.monitoring/processes.yaml`: Node.js-Prozess `emberwatch-server`, Rolle `web`, Start mit `node dist/index.js`, `NODE_ENV=production` und Port 2567.
+- `gameclient/.monitoring/resources.yaml`: Ressource `gameclient` aus `gameclient/dist`, einschließlich Offline-Paket.
+- `.monitoring/vhosts.yaml`: Ein gemeinsamer VHost für die statischen Spieldateien und den Spielserver unter `/api/`, einschließlich WebSocket-Upgrades. Der Client-Workflow setzt dafür `VITE_SERVER_URL=/api`. Matchmaking, Koop und Healthcheck laufen dadurch über dieselbe Domain; der Healthcheck liegt unter `/api/health`.
+
+Die Domain wird je Installation im Manager eingetragen; die Server-Rolle muss `web` enthalten. Nginx oder Apache muss als benötigter Service konfiguriert sein. TLS ist zunächst deaktiviert, da noch keine Domain-/Zertifikatsdaten festgelegt sind. Für öffentliches Hosting mit Offline-Funktion und verschlüsseltem Spielstand HTTPS am vorgeschalteten Proxy oder mit passender TLS-Konfiguration in `vhosts.yaml` einrichten. Die lokalen Entwicklungs- und Standard-Build-Befehle behalten ihre bisherigen Endpunkte.
+
+Nach dem Commit und Push im Manager das Repository-Menü **… → Monitoring Config aktualisieren** verwenden. Alternativ aktualisiert **Builds → Build-Script → Build-Skripte aktualisieren** alle Repositories. Die Repository-Builds sind standardmäßig aktiv; importierte Prozesse, Ressourcen und VHosts werden anschließend über ihre YAML-Dateien gepflegt.
+
+Falls `emberwatch-server` oder der Ressourcen-Key `gameclient` bereits manuell angelegt wurden, müssen diese Einträge vor der Übernahme im Manager bereinigt werden: Der Import überschreibt vorhandene manuelle Einträge nicht. Vorher vorhandene VHost-/Build-Zuordnungen prüfen. Manuelle Build-Jobs für dieselben Ziele entfernen, um doppelte Artefakt-Zuordnungen zu vermeiden.
+
 
 ## Spielablauf
 
@@ -140,7 +161,7 @@ Updates warten auf Aktivierung. Der Updatebutton erscheint nur außerhalb eines 
 Für vertrauenswürdige Handytests im WLAN beispielsweise einen eigenen HTTPS-Reverse-Proxy verwenden:
 
 1. Mit `mkcert` eine lokale Entwicklungs-CA installieren und ein Zertifikat für die LAN-IP des Computers erzeugen. Nur das öffentliche CA-Zertifikat (`rootCA.pem`) aufs eigene Testgerät übertragen und dort ausdrücklich als vertrauenswürdig installieren. Den privaten CA-Schlüssel niemals übertragen.
-2. `npm run build` und `npm start` ausführen. Beispielsweise Caddy auf Port 8443 mit dieser Konfiguration starten (IP und Zertifikatspfade anpassen):
+2. `pnpm run build` und `pnpm start` ausführen. Beispielsweise Caddy auf Port 8443 mit dieser Konfiguration starten (IP und Zertifikatspfade anpassen):
 
    ```text
    https://192.168.178.30:8443 {
@@ -182,25 +203,25 @@ Befehle haben eindeutige IDs. Wiederholungen erhalten dieselbe Quittung; Platzie
 ## Prüfung
 
 ```sh
-npm run typecheck
-npm test
-npm run test:integration
-npm run verify:balance
-npm run verify:balance -- --coop
-npm run build
-# Laufendes npm run dev und installiertes Google Chrome:
-npm run verify:campaign
-npm run verify:storage
-npm run verify:research
-npm run verify:status
-npm run verify:hover
-npm run verify:browser
-npm run verify:coop
-npm run verify:menu
-npm run verify:maps
+pnpm run typecheck
+pnpm test
+pnpm run test:integration
+pnpm run verify:balance
+pnpm run verify:balance --coop
+pnpm run build
+# Laufendes pnpm run dev und installiertes Google Chrome:
+pnpm run verify:campaign
+pnpm run verify:storage
+pnpm run verify:research
+pnpm run verify:status
+pnpm run verify:hover
+pnpm run verify:browser
+pnpm run verify:coop
+pnpm run verify:menu
+pnpm run verify:maps
 # Separater Testserver für den Produktionsbuild auf Port 2570:
-npm run verify:production
-npm run format:check
+pnpm run verify:production
+pnpm run format:check
 ```
 
 Tests prüfen Kampagne/Endless, einmalige Siege, Fortschritts- und Slotgrenzen, sämtliche Turmtypen, Kollisionen, Gold, Bauflächen, Upgrades, Verkauf, identische Simulation und Koop-Autorität. WebSocket-Integration verwendet eigene Ports 2568/2569/2572/2573. Browserprüfungen decken verschlüsselte Speicherung, parallele Tabs, Fehler/Sicherung, echte Kampfwellen, Teamauswahl und responsive Eingaben ab. `verify:balance` spielt alle 15 Missionen mit regulärem Gold und gültigen Teams durch, mit `--coop` zusätzlich als Vierergruppe; erfolgreiche Befehlsfolgen stehen im JSON-Bericht. Der Produktionscheck prüft vollständiges Caching und erneuten Offline-Start.
@@ -213,7 +234,7 @@ Lokale CC0-Modelle von Kenney und Quaternius; keine Warcraft-Assets. Sechs tats�
 
 ## Lokales Gastspiel
 
-Der Account-Menüpunkt zeigt das Spielstand-Level mit EP-Fortschrittsring. Das Dialogfenster enthält EP bis zum nächsten Level, Forschungspunkte, Slots, Kampagnenfortschritt und Kartenrekorde; Registrierung und Login sind vorerst deaktiviert. Abschüsse und Siege werden seit Einführung der Statistik pro Durchlauf verschlüsselt gespeichert, mit maximalen Zählerständen gegen Doppelzählung bei Wiederverbindung oder parallelen Tabs. Im Koop zählen Gruppenergebnisse. Frühere Gesamtsummen können nicht rekonstruiert werden. `npm run verify:account` prüft Ring, Speicherung, Doppelzählung, Tastatur und responsive Dialoggrößen.
+Der Account-Menüpunkt zeigt das Spielstand-Level mit EP-Fortschrittsring. Das Dialogfenster enthält EP bis zum nächsten Level, Forschungspunkte, Slots, Kampagnenfortschritt und Kartenrekorde; Registrierung und Login sind vorerst deaktiviert. Abschüsse und Siege werden seit Einführung der Statistik pro Durchlauf verschlüsselt gespeichert, mit maximalen Zählerständen gegen Doppelzählung bei Wiederverbindung oder parallelen Tabs. Im Koop zählen Gruppenergebnisse. Frühere Gesamtsummen können nicht rekonstruiert werden. `pnpm run verify:account` prüft Ring, Speicherung, Doppelzählung, Tastatur und responsive Dialoggrößen.
 
 ### Prismenlanze
 

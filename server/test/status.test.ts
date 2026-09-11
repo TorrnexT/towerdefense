@@ -14,7 +14,7 @@ let id = 0;
 const send = (s: Simulation, data: Record<string, unknown>) => s.command('p', { id: String(++id), ...data });
 function setup(kind: TowerKind) {
   const s = new Simulation();
-  s.addPlayer('p', 'Hüter', { loadout: [kind] });
+  s.addPlayer('p', 'Hüter', { xp: 1300, loadout: [kind] });
   s.state.players.get('p')!.gold = 1000;
   const result = send(s, { action: 'build', kind, x: -4, z: 1 });
   assert.ok(result.ok);

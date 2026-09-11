@@ -32,8 +32,8 @@ const names = [
 ];
 const descriptions = [
   'Entzünde das erste Wachtfeuer und halte vier Wellen vor den Toren des Waldtals auf.',
-  'Die Kundschafter melden schwer gepanzerte Gegner. Sichere die Biegungen am alten Tor.',
-  'Die Belagerung erreicht das ganze Tal. Halte deine Verteidigung über sechs Wellen zusammen.',
+  'Verteidige das alte Westtor: Der Angriff kommt aus dem Osten und zieht zwischen Ruinen durch die Waldschleifen.',
+  'Ein Fluss teilt das Tal. Halte die beiden Brücken und führe deine Verteidigung vor der Festung zusammen.',
   'Zwei Wege führen über den Fluss. Sichere die Ufer, bevor die Gegner die Brücken erreichen.',
   'Die Angreifer wechseln sich an beiden Brücken ab. Nutze die gemeinsame Engstelle vor der Festung.',
   'Das Wasser steigt, der Ansturm wächst. Halte beide Flussübergänge bis zum letzten Angriff.',
@@ -45,7 +45,7 @@ const descriptions = [
   'Zwölf Wellen drängen durch die Klamm. Halte die Brücken und die letzte Stellung im Eis.',
   'Über den Lavaströmen liegen drei getrennte Wege. Errichte deine Wacht auf den Basaltinseln.',
   'Der Angriff verteilt sich über alle Feuerwege. Sichere die späte Zusammenführung vor der Bastion.',
-  'Die letzte Bastion ruft alle Hüter. Überstehe vierzehn Wellen und bewahre die fünf Feuer.',
+  'Vier Eingänge bedrohen die letzte Bastion. Sichere die getrennten Feuerwege und überstehe vierzehn Wellen.',
 ];
 const waves = [4, 5, 6, 6, 7, 8, 8, 9, 10, 10, 11, 12, 12, 13, 14];
 // Normalized positions match the generated five-biome world illustration.
@@ -80,6 +80,24 @@ export const MISSIONS: Mission[] = names.map((name, i) => ({
 }));
 export const LEVEL_THRESHOLDS = [0, 100, 300, 500, 700, 900, 1100, 1300] as const;
 export const DEFAULT_LOADOUT: TowerKind[] = ['ballista', 'arcane', 'fire'];
+export const TOWER_UNLOCK_LEVELS: Record<TowerKind, number> = {
+  ballista: 1,
+  arcane: 1,
+  fire: 1,
+  grenade: 2,
+  frost: 2,
+  sniper: 3,
+  venom: 3,
+  repeater: 4,
+  inferno: 4,
+  runemortar: 5,
+  prism: 6,
+  ember: 7,
+  meteor: 8,
+};
+export function towerUnlocked(kind: TowerKind, completed: number, xp = completed * 100) {
+  return profileLevel(completed, xp) >= TOWER_UNLOCK_LEVELS[kind];
+}
 export function getMission(id: unknown) {
   return MISSIONS.find((m) => m.id === id);
 }
@@ -97,6 +115,8 @@ export function loadoutError(value: unknown, completed: number, xp = completed *
     return `Wähle 1 bis ${slotCount(completed, xp)} Türme.`;
   if (value.some((x) => typeof x !== 'string' || !Object.hasOwn(TOWERS, x))) return 'Unbekannter Turm.';
   if (new Set(value).size !== value.length) return 'Jeden Turmtyp nur einmal mitnehmen.';
+  const locked = (value as TowerKind[]).find((kind) => !towerUnlocked(kind, completed, xp));
+  if (locked) return `${TOWERS[locked].name} wird auf Level ${TOWER_UNLOCK_LEVELS[locked]} freigeschaltet.`;
   return null;
 }
 export interface RunOptions {

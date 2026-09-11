@@ -6,9 +6,10 @@ import {
   towerStats,
   TOWERS,
   slotCount,
+  loadoutError,
   type TowerKind,
 } from '@emberwatch/shared';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 const results = [];
 const party = process.argv.includes('--coop') ? 4 : 1;
 function play(mission: (typeof MISSIONS)[number], loadout: TowerKind[], splash: number) {
@@ -107,6 +108,7 @@ for (const mission of MISSIONS) {
     ['runemortar', 'prism', 'fire'],
     ['ballista', 'grenade', 'prism'],
   ] as TowerKind[][]) {
+    if (loadoutError(team, mission.number - 1)) continue;
     for (const splash of [0.8, 0.2, 0]) {
       result = play(mission, team, splash);
       if (result.phase === 'victory') break;
@@ -116,6 +118,7 @@ for (const mission of MISSIONS) {
   results.push(result!);
   console.log(mission.name, result!.phase, result!.hp, result!.waves, result!.loadout);
 }
+mkdirSync('verification/output', { recursive: true });
 writeFileSync(
   party === 1 ? 'verification/output/balance-campaign.json' : 'verification/output/balance-coop.json',
   JSON.stringify(results, null, 2),

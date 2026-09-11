@@ -16,7 +16,11 @@ import {
 
 function setup(kind: TowerKind = 'ballista', research = 0) {
   const s = new Simulation();
-  s.addPlayer('alice', 'Hüter', { loadout: [kind], xp: research ? 3000 : 0, research: { [kind]: research } });
+  s.addPlayer('alice', 'Hüter', {
+    loadout: [kind],
+    xp: research ? 3000 : 1300,
+    research: { [kind]: research },
+  });
   s.state.players.get('alice')!.gold = 10000;
   const result = s.command('alice', { id: 'build', action: 'build', kind, x: -4, z: 1 });
   assert.ok(result.ok);
