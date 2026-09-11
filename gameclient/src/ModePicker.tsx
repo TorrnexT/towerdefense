@@ -32,7 +32,7 @@ export function ModePicker({
         <h2 id="mode-title">Wohin führt deine Wacht?</h2>
         <div className="mode-choices">
           <button aria-label="Kampagne" onClick={() => onSelect('campaign')}>
-            <img src="/assets/campaign/world-small.webp" alt="" />
+            <img src={`${import.meta.env.BASE_URL}assets/campaign/world-small.webp`} alt="" />
             <div>
               <Map />
               <strong>Kampagne</strong>
@@ -45,7 +45,7 @@ export function ModePicker({
             </div>
           </button>
           <button aria-label="Endless" onClick={() => onSelect('endless')}>
-            <img src="/assets/campaign/glutspalten-small.webp" alt="" />
+            <img src={`${import.meta.env.BASE_URL}assets/campaign/glutspalten-small.webp`} alt="" />
             <div>
               <Infinity />
               <strong>Endless</strong>

@@ -96,8 +96,11 @@ export class Assets {
     const loader = new GLTFLoader();
     let loaded = 0;
     const files = [
-      ...assetNames.map((name) => ({ name, url: `/assets/kenney/${name}.glb` })),
-      ...['goblin', 'ogre', 'wraith'].map((name) => ({ name, url: `/assets/monsters/${name}.glb` })),
+      ...assetNames.map((name) => ({ name, url: `${import.meta.env.BASE_URL}assets/kenney/${name}.glb` })),
+      ...['goblin', 'ogre', 'wraith'].map((name) => ({
+        name,
+        url: `${import.meta.env.BASE_URL}assets/monsters/${name}.glb`,
+      })),
     ];
     await Promise.all(
       files.map(async (f) => {

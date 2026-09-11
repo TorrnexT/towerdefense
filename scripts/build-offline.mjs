@@ -19,11 +19,11 @@ for (const p of paths) {
 const version = 'emberwatch-' + hash.digest('hex').slice(0, 16);
 await writeFile(
   new URL('service-worker.js', root),
-  `const CACHE=${JSON.stringify(version)},FILES=${JSON.stringify(paths.map((p) => '/' + p))};
+  `const BASE=new URL(self.registration.scope).pathname,PREFIX="emberwatch-"+encodeURIComponent(BASE)+"-",CACHE=PREFIX+${JSON.stringify(version)},FILES=${JSON.stringify(paths)}.map(p=>BASE+p);
 self.addEventListener('install',event=>event.waitUntil((async()=>{try{const cache=await caches.open(CACHE);await cache.addAll(FILES);}catch(error){await caches.delete(CACHE);throw error;}})()));
-self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith('emberwatch-')&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='activate')self.skipWaiting();});
-self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin)return;if(event.request.mode==='navigate'){event.respondWith(caches.open(CACHE).then(async c=>(await c.match('/index.html'))||fetch(event.request)));return;}if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(u.pathname))||fetch(event.request)));});
+self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin)return;if(!u.pathname.startsWith(BASE)||u.pathname.startsWith(BASE+'api/'))return;if(event.request.mode==='navigate'){event.respondWith(caches.open(CACHE).then(async c=>(await c.match(BASE+'index.html'))||fetch(event.request)));return;}if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(u.pathname))||fetch(event.request)));});
 `,
 );
 console.log(`Offline package: ${paths.length} files, ${version}`);

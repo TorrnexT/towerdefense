@@ -177,8 +177,8 @@ export function CampaignMap(p: Props) {
           >
             <img
               className="campaign-world-art"
-              src="/assets/campaign/world.webp"
-              srcSet="/assets/campaign/world-small.webp 768w, /assets/campaign/world.webp 1254w"
+              src={`${import.meta.env.BASE_URL}assets/campaign/world.webp`}
+              srcSet={`${import.meta.env.BASE_URL}assets/campaign/world-small.webp 768w, ${import.meta.env.BASE_URL}assets/campaign/world.webp 1254w`}
               sizes="100vw"
               alt="Fantasy-Weltkarte mit Waldtal, Silberfurt, Bernsteinhain, Frostklamm und Glutspalten"
               draggable={false}

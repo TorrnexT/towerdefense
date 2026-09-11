@@ -1,3 +1,4 @@
+import { createId } from './index';
 import {
   BALANCE,
   validXp,
@@ -114,7 +115,7 @@ export class Simulation {
   private finished() {
     return ['victory', 'defeat'].includes(this.state.phase);
   }
-  private rewardRun = crypto.randomUUID();
+  private rewardRun = createId();
   private sequence = 0;
   private accumulator = 0;
   private cooldowns = new Map<string, number>();
@@ -205,7 +206,7 @@ export class Simulation {
     }
   }
   private restart() {
-    this.rewardRun = crypto.randomUUID();
+    this.rewardRun = createId();
     const s = this.state;
     s.towers.clear();
     s.enemies.clear();

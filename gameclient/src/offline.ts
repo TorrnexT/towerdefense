@@ -10,7 +10,7 @@ export function useOffline() {
     }
     let alive = true;
     navigator.serviceWorker
-      .register('/service-worker.js')
+      .register(`${import.meta.env.BASE_URL}service-worker.js`)
       .then((reg) => {
         const inspect = () => {
           if (!alive) return;

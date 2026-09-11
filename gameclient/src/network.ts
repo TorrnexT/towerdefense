@@ -11,7 +11,9 @@ import type {
 } from '@emberwatch/shared';
 export type ConnectionStatus = 'idle' | 'connecting' | 'online' | 'reconnecting' | 'offline';
 export class GameConnection {
-  private client = new Client(import.meta.env.VITE_SERVER_URL || window.location.origin);
+  private client = new Client(
+    new URL(import.meta.env.VITE_SERVER_URL || window.location.origin, window.location.origin).href,
+  );
   room?: Room;
   playerId = '';
   private generation = 0;

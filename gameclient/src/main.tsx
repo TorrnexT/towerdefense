@@ -1,3 +1,4 @@
+import { createId } from '@emberwatch/shared';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
@@ -213,7 +214,7 @@ function App() {
     if (player.xp === profile.xp && JSON.stringify(player.research || {}) === researchSnapshot) return;
     void c
       .send({
-        id: crypto.randomUUID(),
+        id: createId(),
         action: 'setLoadout',
         loadout: player.loadout,
         xp: profile.xp,
@@ -518,7 +519,7 @@ function App() {
       await profileStore.saveTeam(loadout);
       if (teamPicker.purpose === 'lobby') {
         const result = await connection.current!.send({
-          id: crypto.randomUUID(),
+          id: createId(),
           action: 'setLoadout',
           loadout,
           xp: profileStore.value.xp,

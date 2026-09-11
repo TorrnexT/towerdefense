@@ -8,7 +8,7 @@ import {
 } from '@emberwatch/shared';
 import { X, Shield, LogIn, UserPlus } from 'lucide-react';
 import { useDialog } from './useDialog';
-import type { Profile } from './profile';
+import { profileStore, type Profile } from './profile';
 
 function levelProgress(xp: number) {
   const level = profileLevel(0, xp);
@@ -78,7 +78,11 @@ export function AccountDialog({
         </button>
         <span className="eyebrow">DEIN ACCOUNT</span>
         <h2 id="account-title">Account</h2>
-        <p>Deine Wacht. Dein Fortschritt auf diesem Gerät.</p>
+        <p>
+          {profileStore.guest
+            ? 'HTTP-Gastmodus: Dein Fortschritt gilt nur bis zum Neuladen.'
+            : 'Deine Wacht. Dein Fortschritt auf diesem Gerät.'}
+        </p>
         <div className="account-level">
           <LevelRing xp={profile.xp} />
           <div>
@@ -145,7 +149,10 @@ export function AccountDialog({
           </button>
         </div>
         <p className="account-note">
-          <Shield size={13} /> Verschlüsselt lokal gespeichert · Accounts folgen später.
+          <Shield size={13} />{' '}
+          {profileStore.guest
+            ? 'Nur im Arbeitsspeicher · Für dauerhafte Spielstände HTTPS verwenden.'
+            : 'Verschlüsselt lokal gespeichert · Accounts folgen später.'}
         </p>
         {offline.status && <p className="offline-status">{offline.status}</p>}
         {offline.update && canUpdate && (

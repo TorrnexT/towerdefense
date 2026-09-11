@@ -3,12 +3,24 @@ vhosts:
   - id: emberwatch
     name: Emberwatch
     resource: gameclient
-    dynamicDomains: true
+    # HTTP über die Server-IP; keine Domain-Eingabe bei der Installation.
+    defaultServer: true
+    dynamicDomains: false
     tls:
       mode: disabled
+    redirects:
+      - from: /
+        to: /towerdefense/
+      - from: /towerdefense
+        to: /towerdefense/
+      - from: /towerdefense/api
+        to: /towerdefense/api/
     routes:
+      - id: gameclient
+        path: /towerdefense/
+        resource: gameclient
       - id: gameserver
-        path: /api/
+        path: /towerdefense/api/
         process: emberwatch-server
         processPort: 2567
         websockets: true

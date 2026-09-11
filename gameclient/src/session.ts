@@ -1,3 +1,4 @@
+import { createId } from '@emberwatch/shared';
 import { GameConnection, type ConnectionStatus } from './network';
 import { profileStore } from './profile';
 import type {
@@ -135,7 +136,7 @@ export class GameSession {
     this.mode = 'solo';
     this.playerId = 'local';
     this.onRoom();
-    this.localId = 'local-' + crypto.randomUUID();
+    this.localId = 'local-' + createId();
     this.localRoom.roomId = this.localId;
     const url = new URL(location.href);
     url.searchParams.delete('room');

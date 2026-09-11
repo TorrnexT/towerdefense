@@ -27,7 +27,8 @@
     "verify:status": "node verification/status.mjs",
     "verify:hover": "node verification/hover.mjs",
     "verify:placement": "node verification/placement.mjs",
-    "verify:account": "node verification/account.mjs"
+    "verify:account": "node verification/account.mjs",
+    "verify:subpath": "node verification/subpath.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",

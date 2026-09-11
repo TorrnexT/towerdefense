@@ -185,6 +185,7 @@ export async function openProfile(text: string): Promise<Profile> {
 class RejectedMutation extends Error {}
 type Mutation = (profile: Profile) => void;
 export class ProfileStore {
+  readonly guest = !window.isSecureContext;
   value = freshProfile();
   error = '';
   ready = false;
@@ -200,7 +201,8 @@ export class ProfileStore {
   private emit() {
     for (const fn of this.listeners) fn();
   }
-  private locked<T>(fn: () => Promise<T>) {
+  private async locked<T>(fn: () => Promise<T>): Promise<T> {
+    if (this.guest) return fn();
     if (!window.isSecureContext)
       return Promise.reject(new Error('Für den lokalen Spielstand ist HTTPS oder localhost erforderlich.'));
     if (!navigator.locks)
@@ -208,6 +210,11 @@ export class ProfileStore {
     return navigator.locks.request('emberwatch-profile', fn);
   }
   async load() {
+    if (this.guest) {
+      this.ready = true;
+      this.emit();
+      return;
+    }
     try {
       await this.locked(async () => {
         const text = localStorage.getItem(PROFILE_KEY);
@@ -256,6 +263,13 @@ export class ProfileStore {
       .then(() =>
         this.locked(async () => {
           if (!this.ready || this.error) throw new Error(this.error || 'Spielstand wird geladen.');
+          if (this.guest) {
+            const p = structuredClone(this.value);
+            mutate(p);
+            this.value = p;
+            this.emit();
+            return;
+          }
           const old = localStorage.getItem(PROFILE_KEY);
           if (!old) throw new Error('Der Spielstand wurde außerhalb des Spiels entfernt.');
           const p = await openProfile(old);
@@ -350,6 +364,7 @@ export class ProfileStore {
     });
   }
   async restoreBackup() {
+    if (this.guest) throw new Error('Im HTTP-Gastmodus gibt es keine gespeicherte Sicherung.');
     await this.locked(async () => {
       const b = localStorage.getItem(BACKUP_KEY);
       if (!b) throw new Error('Keine Sicherung vorhanden.');
@@ -379,5 +394,5 @@ export class ProfileStore {
 }
 export const profileStore = new ProfileStore();
 window.addEventListener('storage', (e) => {
-  if (e.key === PROFILE_KEY) void profileStore.load();
+  if (!profileStore.guest && e.key === PROFILE_KEY) void profileStore.load();
 });
