@@ -135,6 +135,23 @@ try {
   });
   assert.ok(cached.length > 40);
   assert.ok(cached.every((p) => p.startsWith('/towerdefense/')));
+  // API navigations must reach the server even with an active game service worker.
+  const apiPage = await secure.newPage();
+  const apiBase = `http://127.0.0.1:${httpPort}/towerdefense/api`;
+  for (const endpoint of ['health', 'status']) {
+    const response = await apiPage.goto(`${apiBase}/${endpoint}`);
+    assert.equal(response.status(), 200);
+    assert.equal(response.fromServiceWorker(), false);
+    assert.match(response.headers()['content-type'], /application\/json/);
+    assert.deepEqual(await response.json(), { ok: true, game: 'Emberwatch' });
+    assert.equal(await apiPage.evaluate(() => !!navigator.serviceWorker.controller), true);
+  }
+  const redirectPromise = apiPage.waitForResponse((response) => response.url() === apiBase);
+  await apiPage.goto(apiBase);
+  const redirect = await redirectPromise;
+  assert.equal(redirect.status(), 302);
+  assert.equal(redirect.fromServiceWorker(), false);
+  await apiPage.close();
   await secure.setOffline(true);
   await securePage.reload();
   await expect(securePage.getByRole('button', { name: 'Einzelspieler', exact: true })).toBeEnabled();
@@ -148,6 +165,8 @@ try {
         solo: true,
         websockets: sockets,
         cachedAssets: cached.length,
+        apiNavigations: ['/towerdefense/api/health', '/towerdefense/api/status'],
+        apiRedirect: true,
         offlineReload: true,
         errors,
         failed,

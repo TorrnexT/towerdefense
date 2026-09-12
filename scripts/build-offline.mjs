@@ -23,7 +23,7 @@ await writeFile(
 self.addEventListener('install',event=>event.waitUntil((async()=>{try{const cache=await caches.open(CACHE);await cache.addAll(FILES);}catch(error){await caches.delete(CACHE);throw error;}})()));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(PREFIX)&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
 self.addEventListener('message',event=>{if(event.data?.type==='activate')self.skipWaiting();});
-self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin)return;if(!u.pathname.startsWith(BASE)||u.pathname.startsWith(BASE+'api/'))return;if(event.request.mode==='navigate'){event.respondWith(caches.open(CACHE).then(async c=>(await c.match(BASE+'index.html'))||fetch(event.request)));return;}if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(u.pathname))||fetch(event.request)));});
+self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin)return;if(!u.pathname.startsWith(BASE)||u.pathname===BASE+'api'||u.pathname.startsWith(BASE+'api/'))return;if(event.request.mode==='navigate'){event.respondWith(caches.open(CACHE).then(async c=>(await c.match(BASE+'index.html'))||fetch(event.request)));return;}if(FILES.includes(u.pathname))event.respondWith(caches.open(CACHE).then(async c=>(await c.match(u.pathname))||fetch(event.request)));});
 `,
 );
 console.log(`Offline package: ${paths.length} files, ${version}`);
