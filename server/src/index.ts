@@ -6,7 +6,7 @@ import { WebSocketTransport } from '@colyseus/ws-transport';
 import { DefenseRoom, CoopRoom } from './room';
 export async function startServer(port = Number(process.env.PORT || 2567)) {
   const app = express();
-  app.get('/health', (_, res) => res.json({ ok: true, game: 'Emberwatch' }));
+  app.get(['/health', '/status'], (_, res) => res.json({ ok: true, game: 'Emberwatch' }));
   app.use(express.static(fileURLToPath(new URL('../../gameclient/dist/', import.meta.url))));
   const http = createServer(app);
   const game = new Server({
